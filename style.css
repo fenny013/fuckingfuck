@@ -1,0 +1,46 @@
+body {
+    font-family: "Courier New", monospace;
+    background-color: #f0f0f0;
+    color: #000;
+    image-rendering: pixelated;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    padding: 20px;
+}
+
+h1 {
+    font-size: 28px;
+    text-transform: uppercase;
+    border-bottom: 3px double black;
+    padding-bottom: 5px;
+}
+
+.rainbow-bg {
+    background: linear-gradient(270deg, red, orange, yellow, green, blue, indigo, violet);
+    background-size: 1400% 1400%;
+    animation: rainbowflow 10s ease infinite;
+}
+
+@keyframes rainbowflow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+button {
+    font-family: "Courier New", monospace;
+    font-size: 16px;
+    padding: 8px 16px;
+    margin-top: 10px;
+    border: 2px solid #000;
+    background: #fff;
+}
+
+.pixel-art {
+    image-rendering: pixelated;
+    display: inline-block;
+    margin-top: 20px;
+}
