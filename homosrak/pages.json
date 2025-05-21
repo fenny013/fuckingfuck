@@ -12,7 +12,7 @@
       "text": "Хммм кто же мне пишет",
       "gif": "see.jpg",
       "next": "dostalog",
-      "nextText": "???: Достать фенни"
+      "nextText": "???: Достать фенни [S]"
     },
     "dostalog": {
       "title": "???: Достать фенни",
@@ -20,6 +20,7 @@
       "gif": "dostalog.png",
       "next": "wtf",
       "nextText": "??: подумать о чем то ахуенном",
+      "audio": "sleep.mp3",
       "dostalog": {
         "visible": false,
         "color": "#444",
