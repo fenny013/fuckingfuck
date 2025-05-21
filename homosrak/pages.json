@@ -1,0 +1,39 @@
+{
+  "pages": {
+    "start": {
+      "title": "Гомосрак",
+      "text": "Ты - какой то странный чел по имени фенни. Он (ты) очень странно растягивается и улыбается как даун. Ой кажется ему (тебе чета пишут)",
+      "gif": "fenny.gif",
+      "next": "2",
+      "nextText": "==>"
+    },
+    "2": {
+      "title": "фенни: Проверить достаньДруга",
+      "text": "Хммм кто же мне пишет",
+      "gif": "see.jpg",
+      "next": "dostalog",
+      "nextText": "???: Достать фенни"
+    },
+    "dostalog": {
+      "title": "???: Достать фенни",
+      "text": "",
+      "gif": "dostalog.png",
+      "next": "wtf",
+      "nextText": "??: подумать о чем то ахуенном",
+      "dostalog": {
+        "visible": false,
+        "color": "#444",
+        "background": "#f0f0f0",
+        "font": "Courier New",
+        "content": "<b>??????? [??]</b> <strong>начал доставать</strong> <span style='color:green;'>ядерногоОсла [ЯО]</span><br><br>??: ПРИВЕТ ФЕННИ ТУТ КАКОЙ ТО БОМЖ ЛЕЖИТ СПИТ КАЖЕТСЯ ХОЧЕШЬ ФОТКУ ПРИШЛЮ.<br><span style='color:green;'>ЯО: серьехно ахуеееть пришли !!</span><br>??: <a href='https://i.ibb.co/gMYJ58j5/image.png' target='_blank'>https://i.ibb.co/gMYJ58j5/image.png<a>"
+      }
+    },
+    "wtf": {
+      "title": "??: подумать о чем то ахуенном",
+      "text": "ты думаешь и твой внутренний голос говорит: бляя какой же это ахуенный мемасик",
+      "gif": "axeret.jpg",
+      "next": "start",
+      "nextText": "все конец у меня кончились рисунки (вернуться в начало)"
+    }
+  }
+}

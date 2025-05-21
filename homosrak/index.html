@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Homestuck</title>
+    <style>
+        body {
+            background: #ddd;
+            font-family: "Courier New", monospace;
+            margin: 0;
+            padding: 20px;
+            font-weight: bold;
+            line-height: 1.35;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .container {
+            background: white;
+            border: 2px solid #888;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        h1 { text-align: center; }
+        .image {
+            max-width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .text {
+            font-size: 14px;
+            line-height: 1.5;
+            text-align: center;
+        }
+        .input, .footer {
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        .footer a {
+            margin-right: 10px;
+            color: blue;
+            text-decoration: none;
+        }
+        .footer a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Homestuck</h1>
+    <div class="image" id="gif-container"></div>
+    <div class="text" id="text-container"></div>
+    <div id="dostalog-container" style="display:none; margin-top:20px; border:1px dashed gray; padding:10px; text-align: justify;">
+        <div style="text-align: center;">
+            <button id="toggle-dostalog">Показать досталог</button>
+        </div>
+        <div id="dostalog-content" style="display:none; margin-top:10px;"></div>
+    </div>
+    <div class="input" id="next-link"></div>
+    <div class="footer">
+        <a href="#">Сохранить игру</a> |
+        <a href="#">Вкл. автосохранение</a> |
+        <a href="#">Оригинал</a>
+    </div>
+</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const page = params.get('page') || 'start';
+
+    fetch('pages.json')
+        .then(res => res.json())
+        .then(data => {
+            const current = data.pages[page];
+
+            if (!current) {
+                document.getElementById('text-container').textContent = "Страница не найдена.";
+                return;
+            }
+
+            // Заголовки
+            document.title = current.title;
+            document.querySelector('h1').textContent = current.title;
+
+            // Гифка и текст
+            document.getElementById('gif-container').innerHTML = `<img src="${current.gif}" style="max-width:100%; max-height:400px; height:auto;">`;
+            document.getElementById('text-container').textContent = current.text;
+
+            // Кнопка далее
+            if (current.next) {
+                const linkText = current.nextText || "Продолжить";
+                document.getElementById('next-link').innerHTML = `&gt; <a href="?page=${current.next}">${linkText}</a>`;
+            } else {
+                document.getElementById('next-link').innerHTML = '';
+            }
+
+            // 👉 Досталог
+            const dostalog = current.dostalog;
+            const dContainer = document.getElementById('dostalog-container');
+            const dContent = document.getElementById('dostalog-content');
+            const dToggle = document.getElementById('toggle-dostalog');
+
+            if (dostalog) {
+                dContainer.style.display = "block";
+
+                // Стили и содержимое
+                dContent.innerHTML = dostalog.content;
+                dContent.style.color = dostalog.color || "#000";
+                dContent.style.background = dostalog.background || "#fff";
+                dContent.style.fontFamily = dostalog.font || "monospace";
+
+                // Кнопка
+                let shown = dostalog.visible || false;
+                dContent.style.display = shown ? "block" : "none";
+                dToggle.textContent = shown ? "Скрыть досталог" : "Показать досталог";
+
+                dToggle.onclick = () => {
+                    shown = !shown;
+                    dContent.style.display = shown ? "block" : "none";
+                    dToggle.textContent = shown ? "Скрыть досталог" : "Показать досталог";
+                };
+            } else {
+                dContainer.style.display = "none";
+            }
+        });
+</script>
+</body>
+</html>
