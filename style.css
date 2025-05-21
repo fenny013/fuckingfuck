@@ -5,6 +5,10 @@ body {
     image-rendering: pixelated;
     margin: 0;
     padding: 0;
+    font-weight: bold;
+    line-height: 1.35;
+    font-size: 14px;
+    text-align: center;
 }
 
 .container {
