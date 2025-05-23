@@ -18,9 +18,8 @@
       "title": "???: Достать фенни [S]",
       "text": "",
       "gif": "dostalog.png",
-      "next": "wtf",
-      "nextText": "??: подумать о чем то ахуенном",
-      "audio": "sleep.mp3",
+      "next": "pic",
+      "nextText": "фенни: присмотреться к картинке",
       "dostalog": {
         "visible": false,
         "color": "#444",

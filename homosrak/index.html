@@ -31,7 +31,6 @@
         .text {
             font-size: 14px;
             line-height: 1.5;
-            text-align: center;
         }
         .input, .footer {
             font-size: 14px;
@@ -43,12 +42,6 @@
             text-decoration: none;
         }
         .footer a:hover { text-decoration: underline; }
-
-        .audio-overlay {
-            position: relative;
-            display: inline-block;
-        }
-
         .audio-cover {
             position: absolute;
             top: 0; left: 0;
@@ -62,33 +55,24 @@
             flex-direction: column;
             cursor: pointer;
         }
-
         .audio-cover img {
             width: 64px;
             height: 64px;
             margin-bottom: 8px;
         }
     </style>
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
 </head>
 <body>
 <div class="container">
     <h1>Homestuck</h1>
 
-    <div class="image">
-        <div class="audio-overlay" id="gif-wrapper">
-            <img id="gif-image" src="" alt="gif" style="max-width: 100%; max-height: 400px; height: auto;">
-            <div class="audio-cover" id="audio-cover" style="display: none;">
-                <img src="audio.png" alt="Click to unmute">
-                <span>Click to unmute</span>
-            </div>
-        </div>
-    </div>
-
+    <div class="image" id="gif-wrapper"></div>
     <audio id="page-audio" preload="auto"></audio>
 
     <div class="text" id="text-container"></div>
 
-    <div id="dostalog-container" style="display:none; margin-top:20px; border:1px dashed gray; padding:10px; text-align: justify;">
+    <div id="dostalog-container" style="display:none; margin-top:20px; border:1px dashed gray; padding:10px;">
         <div style="text-align: center;">
             <button id="toggle-dostalog">Показать досталог</button>
         </div>
@@ -112,7 +96,6 @@
         .then(res => res.json())
         .then(data => {
             const current = data.pages[page];
-
             if (!current) {
                 document.getElementById('text-container').textContent = "Страница не найдена.";
                 return;
@@ -125,27 +108,52 @@
             // Текст
             document.getElementById('text-container').textContent = current.text;
 
-            // Гифка
-            document.getElementById('gif-image').src = current.gif;
-
-            // Аудио логика
-            const audio = document.getElementById('page-audio');
-            const audioCover = document.getElementById('audio-cover');
+            // Гифка или SWF
             const gifWrapper = document.getElementById('gif-wrapper');
+            gifWrapper.innerHTML = ''; // clear before reuse
+            const isSWF = current.gif && current.gif.toLowerCase().endsWith('.swf');
+            const audio = document.getElementById('page-audio');
+            audio.pause();
+            audio.src = '';
 
-            if (current.audio) {
-                audio.src = current.audio;
-                audioCover.style.display = "flex";
-
-                const unlockAudio = () => {
-                    audio.play().catch(e => console.warn("Audio error:", e));
-                    audioCover.style.display = "none";
-                    gifWrapper.removeEventListener('click', unlockAudio);
-                };
-
-                gifWrapper.addEventListener('click', unlockAudio);
+            if (isSWF) {
+                const player = document.createElement('ruffle-player');
+                player.style.width = '100%';
+                player.style.maxHeight = '400px';
+                gifWrapper.appendChild(player);
+                const ruffle = window.RufflePlayer.newest();
+                ruffle.create_player().then(p => {
+                    player.appendChild(p);
+                    p.load(current.gif);
+                });
             } else {
-                audioCover.style.display = "none";
+                // Create image
+                const img = document.createElement('img');
+                img.src = current.gif;
+                img.alt = 'gif';
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '400px';
+                img.style.height = 'auto';
+                gifWrapper.appendChild(img);
+
+                // Create overlay only if audio exists
+                if (current.audio) {
+                    audio.src = current.audio;
+
+                    const cover = document.createElement('div');
+                    cover.className = 'audio-cover';
+                    cover.innerHTML = `
+                        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAv0lEQVR4nO3ZMQ6CMBAG4bdxTw8fYq1HFEbL1WTddBPTJv+Ls1AjOMK8DywHMw3yEkTAAAAAADwV3GowRGzQqEBmMDVytbi2AOs3IjT3YoJzp2K4EYcH9LhWjBKcKLDMy3VSpIPnm68lVCN3s9p79ZrCgAAAAAAAADAL5XZLfbPXiv1NBRr/Y7VO/dznpq93ugUAAAAAAAAAAAC4O09+xDP9YBQHLzDkAAAAASUVORK5CYII=">
+                        <span>Click to unmute</span>
+                    `;
+                    gifWrapper.appendChild(cover);
+
+                    gifWrapper.addEventListener('click', function playAudioOnce() {
+                        audio.play().catch(e => console.warn("Audio error:", e));
+                        cover.style.display = 'none';
+                        gifWrapper.removeEventListener('click', playAudioOnce);
+                    });
+                }
             }
 
             // Кнопка далее
