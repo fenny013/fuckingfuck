@@ -1,0 +1,34 @@
+{
+  "id": "0000",
+  "top": [
+    {
+      "type": "html",
+      "html": "<span style=\"font-weight:bold;\">==> <b>KARKAT:</b> Prepare to suffer.</span>"
+    },
+    {
+      "type": "img",
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/320px-Cat03.jpg"
+    }
+  ],
+  "main": {
+    "type": "html",
+    "html": "<div style=\\\"text-align:center; font-family:monospace;\\\"><h2 style=\\\"color:#f00;\\\">🔥 КРУПНЫЙ ТЕКСТ 🔥</h2><img src=\\\"https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExczAybDZoc3ZyZnFzY2ZkNGllOXBzM2R1ZGptYTRndHdvNmNqZGhpdCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/MF7kVxg1V0yve/giphy.gif\\\" style=\\\"max-width:100%;\\\"><br><audio controls src=\\\"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3\\\"></audio><br><video width=\\\"320\\\" controls><source src=\\\"https://samplelib.com/lib/preview/mp4/sample-5s.mp4\\\" type=\\\"video/mp4\\\"></video><br><details style=\\\"margin-top:10px; font-size:14px;\\\"><summary>💀 СПОЙЛЕР!</summary><p>VRISKA УБИЛА [REDACTED] ПРЯМО В ЛОБ</p></details><button onclick=\\\"alert('ВОТ ТЕБЕ КНОПКА, КЛИКНИ И УМРИ')\\\">Нажми меня</button></div>"
+  },
+  "bottom": [
+    {
+      "type": "html",
+      "html": "<p style=\"text-align:center; font-style:italic;\">👇 Ниже — <b>Ruffle-анимация</b> (если б была)</p>"
+    }
+  ],
+  "footer": [
+    {
+      "type": "html",
+      "html": "<div style=\"text-align:center; font-family:monospace;\"><span style=\"color:purple; font-weight:bold;\">⬇ ТЫ ВНИЗЕ. ПОЗДРАВЛЯЮ.</span></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"text-align:center; font-size:12px;\">Текущий кадр: <b id='frame-display'>???</b></div>"
+    }
+  ],
+  "next": "0001"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "0000",
+  "top": [
+    {
+      "type": "html",
+      "html": "<span style=\"font-weight:bold;\">==> <b>TEXT:</b> text.</span>"
+    },
+    {
+      "type": "img",
+      "src": "images/icon.png"
+    }
+  ],
+  "main": {
+    "type": "html",
+    "html": "<div style=\\\"text-align:center;\\\"><h2 style=\\\"color:#f00;\\\">TEEXT</h2><img src=\\\"images/demo.gif\\\" style=\\\"max-width:100%;\\\"><br><audio controls src=\\\"sounds/bluh.wav\\\"></audio><br><video width=\\\"320\\\" controls><source src=\\\"videos/sample.mp4\\\" type=\\\"video/mp4\\\"></video><br><details style=\\\"margin-top:10px;\\\"><summary>💀 СПОЙЛЕР!</summary><p>VRISKA УБИЛА [REDACTED]</p></details><button onclick=\\\"alert('ВОТ ТЕБЕ КНОПКА!')\\\">Нажми меня</button></div>"
+  },
+  "bottom": [
+    {
+      "type": "html",
+      "html": "<p style=\"text-align:center;\">TEXT — <i>nahui</i></p>"
+    }
+  ],
+  "footer": [
+    {
+      "type": "html",
+      "html": "<div style=\"text-align:center;\"><span style=\"color:purple;\">⬇ 123123.</span></div>"
+    },
+    {
+      "type": "html",
+      "html": "<div style=\"text-align:center; font-size:12px;\">Текущий кадр: <b><script>document.write(window.currentFrameId || '???')</script></b></div>"
+    }
+  ],
+  "next": "0001"
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>MSPAru Proxy</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background: #f0f0f0;
+            color: #222;
+        }
+
+        #content {
+            min-height: 100%;
+            background: #fff;
+            padding: 1em;
+            box-sizing: border-box;
+        }
+
+        a {
+            color: #0044cc;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div id="content">Загрузка...</div>
+
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const s = params.get("s");
+    const p = params.get("p");
+
+    const proxies = [
+        url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+        url => `https://cors-proxy.htmldriven.com/?url=${encodeURIComponent(url)}`,
+        url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+    ];
+
+    if (!s || !p) {
+        document.getElementById("content").textContent = "Добавь ?s=6&p=005139 в адресную строку!";
+    } else {
+        const targetURL = `https://mspaintadventures.ru/?s=${s}&p=${p}`;
+        let currentProxy = 0;
+
+        function tryNextProxy() {
+            if (currentProxy >= proxies.length) {
+                document.getElementById("content").textContent = "😿 Все прокси сдохли или заблокированы.";
+                return;
+            }
+
+            const proxyURL = proxies[currentProxy](targetURL);
+            fetch(proxyURL)
+                .then(response => {
+                    if (!response.ok) throw new Error("HTTP error " + response.status);
+                    return response.text();
+                })
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const tbody = doc.querySelector("tbody");
+
+                    if (tbody) {
+                        // Чиним картинки
+                        tbody.querySelectorAll("img").forEach(img => {
+                            const originalSrc = img.getAttribute("src");
+                            if (originalSrc && !originalSrc.startsWith("http")) {
+                                img.src = "https://mspaintadventures.ru/" + originalSrc.replace(/^\/+/, '');
+                            }
+                        });
+
+                        // Чиним ссылки
+                        tbody.querySelectorAll("a").forEach(a => {
+                            const href = a.getAttribute("href");
+                            if (href && href.startsWith("?s=")) {
+                                const currentPage = location.pathname.split('/').pop(); // имя файла (например, msparu.html)
+                                a.setAttribute("href", `${currentPage}${href}`);
+                            }
+                        });
+
+                        document.getElementById("content").innerHTML = tbody.outerHTML;
+                    } else {
+                        document.getElementById("content").textContent = "tbody не найден на странице.";
+                    }
+                })
+                .catch(error => {
+                    console.warn("Ошибка прокси #" + (currentProxy + 1), error);
+                    currentProxy++;
+                    tryNextProxy();
+                });
+        }
+
+        tryNextProxy();
+    }
+</script>
+</body>
+</html>

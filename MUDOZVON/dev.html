@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Homestuck Engine++</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/@ruffle-rs/ruffle"></script>
+</head>
+<body>
+<div id="top-bar"></div>
+<div id="main"></div>
+<div id="bottom"></div>
+<div id="footer"></div>
+<a id="next" href="#">==></a>
+
+<div id="controls">
+    <button onclick="goBack()">← Назад</button>
+    <button onclick="goStart()">⏮ Сначала</button>
+    <button onclick="saveProgress()">💾 Сохранить</button>
+    <button onclick="loadProgress()">📤 Загрузить</button>
+    <button onclick="toggleAutosave()" id="autosave-btn">🌀 Автосохр: выкл</button>
+    <button onclick="reloadFrame()">🔁 Перезапуск</button>
+    <button onclick="clearSave()">❌ Очистить сейв</button>
+    <button onclick="pauseAll()">⏸ Пауза</button>
+    <button onclick="toggleMute()" id="mute-btn">🔇 Звук выкл</button>
+    <button onclick="customJump()">💬 Перейти</button>
+    <button onclick="downloadCurrent()">📥 Скачать JSON</button>
+</div>
+
+<script src="comic.js"></script>
+</body>
+</html>
