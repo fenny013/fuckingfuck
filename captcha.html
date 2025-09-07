@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>CAPTCHA</title>
+    <style>
+        :root{
+            --bg:#fff; --fg:#222; --muted:#6b7280; --border:#e5e7eb;
+            --accent:#3b82f6; --accent-weak:#007aff; --ok:#16a34a; --err:#dc2626;
+            --radius:10px; --shadow:0 6px 18px rgba(0,0,0,.06);
+        }
+        html,body{background:transparent}
+        body{margin:0; font:14px/1.4 system-ui,Segoe UI,Roboto,Arial,sans-serif; color:var(--fg)}
+
+        /* Обёртка как у reCAPTCHA: слева чекбокс, справа панель */
+        .wrap{
+            display:inline-flex; align-items:flex-start; gap:12px;
+            background:var(--bg); border:1px solid var(--border);
+            border-radius:var(--radius); padding:12px; box-shadow:var(--shadow);
+        }
+
+        /* Левая часть (чекбокс + текст) */
+        .left{display:flex; align-items:center; gap:10px; min-width:260px}
+        .fakebox{
+            width:22px; height:22px; border:2px solid #9ca3af; border-radius:4px; background:#fff;
+            display:grid; place-items:center; cursor:pointer; flex:0 0 22px;
+            transition:all .15s ease-in-out;
+        }
+        .fakebox:hover{border-color:#6b7280}
+        .fakebox.checked{border-color:var(--ok); background:#e7f6ea}
+        .fakebox.checked::after{
+            content:""; width:14px; height:14px; background:var(--ok);
+            clip-path:polygon(14% 54%,0 68%,37% 100%,100% 22%,86% 6%,38% 66%);
+        }
+        .title{font-weight:600}
+        .subtitle{font-size:12px; color:var(--muted)}
+
+        /* Правая панель (рамка рядом) */
+        .panel{width:0; overflow:hidden; border-left:0; transition:width .18s ease-in-out, border-color .18s}
+        .panel.open{width:340px; padding-left:12px; border-left:1px solid var(--border)}
+
+        /* Карточка внутри панели (твоя «captcha») */
+        .captcha{box-sizing:border-box; background:var(--bg); border:1px solid var(--border);
+            border-radius:var(--radius); padding:12px; box-shadow:var(--shadow);}
+        .subtitle2{font-size:12px; color:var(--muted); margin-top:4px}
+
+        .grid{
+            display:grid; grid-template-columns:repeat(3,1fr); gap:6px; user-select:none; margin:10px 0;
+        }
+        .cell{
+            position:relative; aspect-ratio:1/1; border:2px solid var(--border); border-radius:6px; overflow:hidden;
+            background:#f8fafc; transition:all .12s ease-in-out;
+        }
+        .cell img{width:100%; height:100%; object-fit:cover; display:block; pointer-events:none}
+        .cell input{position:absolute; inset:0; opacity:0; pointer-events:none}
+        .cell.selected{box-shadow:0 0 0 3px rgba(0,122,255,.28); border-color:var(--accent-weak)}
+        .cell.selected::after{
+            content:"✓"; position:absolute; top:6px; left:6px; font-weight:700; font-size:14px;
+            color:#fff; background:var(--accent-weak); border-radius:4px; padding:1px 4px;
+        }
+
+        .actions{display:flex; gap:8px; align-items:center; justify-content:space-between}
+        .btn{appearance:none; border:1px solid var(--border); background:#f9fafb; padding:8px 12px; border-radius:8px; cursor:pointer}
+        .btn.primary{background:var(--accent); color:#fff; border-color:var(--accent)}
+        .status{font-size:12px; color:var(--muted)}
+        .status.ok{color:var(--ok)} .status.err{color:var(--err)}
+
+
+
+        /* Мобильная адаптация */
+        @media (max-width: 480px) {
+            .wrap {
+                flex-direction: column; /* вместо inline-flex */
+                align-items: stretch;
+                gap: 8px;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            .left {
+                min-width: auto;
+            }
+
+            .panel.open {
+                width: 100%;      /* растягиваем на всю ширину */
+                padding-left: 0;
+                border-left: none;
+                border-top: 1px solid var(--border);
+            }
+
+            .captcha {
+                padding: 10px;
+            }
+
+            .grid {
+                grid-template-columns: repeat(2, 1fr); /* 2 колонки вместо 3, чтобы картинки были крупнее */
+                gap: 8px;
+            }
+
+            .actions {
+                flex-direction: column;
+                gap: 6px;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="wrap" role="group" aria-labelledby="cap-title">
+    <!-- Левая часть как у рекапчи -->
+    <div class="left">
+        <div id="fakebox" class="fakebox" role="checkbox" aria-checked="false" tabindex="0" aria-label="Я не робот"></div>
+        <div>
+            <div id="cap-title" class="title">Я не робот</div>
+            <div class="subtitle">Нажмите, чтобы пройти проверку</div>
+        </div>
+    </div>
+
+    <!-- Правая панель (рамочка рядом) -->
+    <div id="panel" class="panel" aria-hidden="true">
+        <div class="captcha">
+            <div class="title">Подтвердите, что вы человек</div>
+            <div class="subtitle2">Выберите все изображения с: <strong id="cap-tag"></strong></div>
+
+            <!-- СЛУЖЕБНЫЙ БЛОК КОНФИГУРАЦИИ: оставила твой набор картинок 1-в-1 -->
+            <script id="cap-config" type="application/json">
+                {
+                    "label": "женщинами",
+                    "images": [
+                        {"src": "https://i.pinimg.com/736x/95/9a/fe/959afe4a11c1723f5772c59383df30ec.jpg", "isCorrect": false},
+                        {"src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6-WyGgzKYx_ZN1X4kBZ20cXbauF7LI0jCRw&s", "isCorrect": false},
+                        {"src": "https://i.imgur.com/VurEkIdg.jpg", "isCorrect": false},
+                        {"src": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ_TNT1G8hWihc54gvvWMNgkaKpTM44d2ttpA&s", "isCorrect": false},
+                        {"src": "https://i.pinimg.com/736x/84/21/68/8421684d025e5b95c55df0fcf0253a26.jpg", "isCorrect": false},
+                        {"src": "https://shapes.inc/api/public/avatar/milkyray-d5fk", "isCorrect": false},
+                        {"src": "https://static.wikia.nocookie.net/aesthetics/images/8/8b/Femboy_1.png", "isCorrect": false},
+                        {"src": "https://preview.redd.it/just-a-femboy-saying-hi-v0-hwc8atrwg3td1.jpeg?auto=webp&s=681ac78a07a3f0ebeee07d00739c59f86183ff84", "isCorrect": false},
+                        {"src": "https://www.lgbthistoryuk.org/w/images/thumb/c/c4/Femboyonreddit.jpg/300px-Femboyonreddit.jpg", "isCorrect": false}
+                    ],
+                    "minToSelect": 1
+                }
+            </script>
+            <!-- КОНЕЦ КОНФИГА -->
+
+            <div class="grid" id="cap-grid" role="listbox" aria-multiselectable="true" aria-label="Сетка изображений"></div>
+            <div class="actions">
+                <button class="btn" id="cap-refresh" type="button" aria-label="Обновить изображения">Обновить</button>
+                <button class="btn primary" id="cap-verify" type="button">Подтвердить</button>
+            </div>
+            <div class="status" id="cap-status" aria-live="polite"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        const cfg = JSON.parse(document.getElementById('cap-config').textContent.trim());
+        const tagEl = document.getElementById('cap-tag');
+        const grid = document.getElementById('cap-grid');
+        const status = document.getElementById('cap-status');
+        const btnVerify = document.getElementById('cap-verify');
+        const btnRefresh = document.getElementById('cap-refresh');
+
+        const fake = document.getElementById('fakebox');
+        const panel = document.getElementById('panel');
+
+        tagEl.textContent = cfg.label;
+
+        let cells = [];
+
+        function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [arr[i],arr[j]]=[arr[j],arr[i]] } }
+
+        function render(){
+            grid.innerHTML=''; cells=[];
+            const arr = cfg.images.slice();
+            shuffle(arr);
+            arr.forEach((item,idx)=>{
+                const cell = document.createElement('div');
+                cell.className='cell';
+                cell.setAttribute('role','option');
+                cell.setAttribute('aria-selected','false');
+
+                const img = new Image();
+                img.alt = `Клетка ${idx+1}`;
+                img.src = item.src;
+
+                const input = document.createElement('input');
+                input.type='checkbox';
+
+                // единственная точка истины — переключаем тут
+                cell.addEventListener('click', ()=>{
+                    const on = !input.checked;
+                    input.checked = on;
+                    cell.classList.toggle('selected', on);
+                    cell.setAttribute('aria-selected', on ? 'true' : 'false');
+                });
+
+                cell.appendChild(img);
+                cell.appendChild(input);
+                grid.appendChild(cell);
+                cells.push({el:cell, input, correct:item.isCorrect});
+            });
+            status.textContent='';
+        }
+
+        function openPanel(){
+            panel.classList.add('open');
+            panel.setAttribute('aria-hidden','false');
+        }
+        function closePanel(){
+            panel.classList.remove('open');
+            panel.setAttribute('aria-hidden','true');
+        }
+
+        function verify(){
+            const selected = cells.map(c=>c.input.checked);
+            const correct = cells.map(c=>c.correct);
+            const min = cfg.minToSelect || 1;
+
+            if (selected.filter(Boolean).length < min){
+                status.className='status err';
+                status.textContent='Выберите нужные изображения.';
+                return;
+            }
+            const ok = selected.every((v,i)=>v===correct[i]);
+            if (ok){
+                // зелёная галочка в чекбоксе слева
+                fake.classList.add('checked');
+                fake.setAttribute('aria-checked','true');
+                status.className='status ok';
+                status.textContent='Проверка пройдена. Генерирую токен...';
+
+                // Токен наружу (для формы во внешнем окне/iframe)
+                const payload = { ts: Date.now(), sel: selected.map(Number) };
+                const token = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+                try{ window.parent && window.parent.postMessage({type:'custom-captcha', token}, '*'); }catch(e){}
+
+                setTimeout(()=>closePanel(), 350);
+            } else {
+                status.className='status err';
+                status.textContent='Неверно. Попробуйте ещё раз.';
+            }
+        }
+
+        // Интеракция с чекбоксом слева
+        function onFakeToggle(){
+            if (fake.classList.contains('checked')) return; // уже пройдено — не открываем снова
+            openPanel();
+        }
+        fake.addEventListener('click', onFakeToggle);
+        fake.addEventListener('keydown', (e)=>{
+            if(e.key === ' ' || e.key === 'Enter'){ e.preventDefault(); onFakeToggle(); }
+        });
+
+        btnVerify.addEventListener('click', verify);
+        btnRefresh.addEventListener('click', render);
+
+        render();
+    })();
+</script>
+</body>
+</html>
