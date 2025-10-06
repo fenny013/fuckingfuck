@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ch. K.</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: black;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #scene {
+      position: relative;
+      width: 800px;
+      height: 400px;
+      border: 2px solid #444;
+      overflow: hidden;
+      background-color: #111;
+    }
+
+    .target {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 250px;
+      height: 250px;
+      background: url('https://media.tenor.com/N8pPc1dM3GYAAAAM/charlie-kirk-eeffoc.gif') center/cover no-repeat;
+    }
+
+    .bullet {
+      position: absolute;
+      width: 25px;
+      height: 8px;
+      background: gold;
+      border-radius: 4px;
+      top: 50%;
+      left: -40px;
+      transform: translateY(-50%);
+      animation: fly 3s linear forwards;
+    }
+
+    @keyframes fly {
+      0% { left: -40px; }
+      90% { left: 720px; }
+      100% { left: 720px; opacity: 0; }
+    }
+
+    .explosion {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      top: 50%;
+      left: 700px;
+      transform: translateY(-50%) scale(0);
+      background: radial-gradient(circle, orange, red, transparent);
+      border-radius: 50%;
+      animation: boom 0.6s ease-out forwards;
+    }
+
+    @keyframes boom {
+      0% { transform: translateY(-50%) scale(0); opacity: 1; }
+      70% { transform: translateY(-50%) scale(3); opacity: 1; }
+      100% { transform: translateY(-50%) scale(4); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="scene">
+    <div class="target"></div>
+  </div>
+
+  <script>
+    const scene = document.getElementById('scene');
+
+    function shoot() {
+      const bullet = document.createElement('div');
+      bullet.classList.add('bullet');
+      scene.appendChild(bullet);
+
+      bullet.addEventListener('animationend', () => {
+        bullet.remove();
+        explode();
+      });
+    }
+
+    function explode() {
+      const explosion = document.createElement('div');
+      explosion.classList.add('explosion');
+      scene.appendChild(explosion);
+
+      setTimeout(() => explosion.remove(), 600);
+    }
+
+    shoot();
+  </script>
+</body>
+</html>
