@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>KirovGPT</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {margin:0;padding:0;box-sizing:border-box;}
+    body {
+      background:#0d0d0f;
+      color:#e6e6e6;
+      font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+      display:flex;
+      height:100vh;
+      overflow:hidden;
+    }
+
+    /* БОКОВАЯ ПАНЕЛЬ */
+    .sidebar {
+      width:250px;
+      background:#111113;
+      border-right:1px solid rgba(255,255,255,0.08);
+      padding:16px;
+    }
+
+    .logo {
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:20px;
+      font-weight:700;
+      padding-bottom:14px;
+      border-bottom:1px solid rgba(255,255,255,0.12);
+    }
+
+    .flag {
+      width:26px;
+      height:18px;
+      border-radius:2px;
+    }
+
+    .placeholder {
+      width:100%;
+      height:42px;
+      background:rgba(255,255,255,0.04);
+      margin-top:12px;
+      border-radius:8px;
+      opacity:0.2;
+    }
+
+    /* ЧАТ */
+    .chat-area {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .topbar {
+      padding:14px 20px;
+      border-bottom:1px solid rgba(255,255,255,0.07);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+    }
+
+    .title {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:18px;
+      font-weight:600;
+    }
+
+    .chat-scroll {
+      flex:1;
+      overflow-y:auto;
+      padding:26px;
+      scroll-behavior:smooth;
+    }
+
+    .messages {
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .msg {
+      max-width:760px;
+      padding:14px 18px;
+      border-radius:12px;
+      white-space:pre-wrap;
+      font-size:15px;
+    }
+
+    .msg.bot {
+      background:#1a1a1d;
+      border:1px solid rgba(255,255,255,0.05);
+    }
+
+    .msg.user {
+      background:#0055ff;
+      color:white;
+      align-self:flex-end;
+    }
+
+    /* КНОПКИ */
+    .button-panel {
+      padding:18px 24px;
+      border-top:1px solid rgba(255,255,255,0.08);
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .chat-btn {
+      padding:10px 16px;
+      background:#1d1d22;
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:8px;
+      cursor:pointer;
+      font-size:14px;
+      transition:0.15s;
+    }
+    .chat-btn:hover {
+      background:#2a2a31;
+      border-color:rgba(255,255,255,0.2);
+    }
+
+    ::-webkit-scrollbar{width:8px;}
+    ::-webkit-scrollbar-thumb{background:#2f2f36;border-radius:8px;}
+
+
+    .button-panel {
+  padding:20px 30px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  background:#0d0d0f;
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+}
+
+.chat-btn {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:10px 18px;
+  background:#1e1f22;
+  border:1px solid rgba(255,255,255,0.13);
+  border-radius:12px;
+  color:#e5e5e5;
+  font-size:14px;
+  font-weight:500;
+  cursor:pointer;
+  transition:background 0.2s, border-color 0.2s, transform 0.08s;
+}
+
+.chat-btn:hover {
+  background:#2a2b2f;
+  border-color:rgba(255,255,255,0.18);
+}
+
+.chat-btn:active {
+  transform:scale(0.97);
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- СЛЕВА -->
+  <aside class="sidebar">
+    <div class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Israel.svg" class="flag">
+      KirovGPT
+    </div>
+    <div class="placeholder"></div>
+    <div class="placeholder"></div>
+  </aside>
+
+  <!-- ЧАТ -->
+  <div class="chat-area">
+
+    <div class="topbar">
+      <div class="title">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d4/Flag_of_Israel.svg" class="flag">
+        KirovGPT
+      </div>
+      <span style="opacity:0.7;">beta</span>
+    </div>
+
+    <div class="chat-scroll" id="chatScroll">
+      <div class="messages" id="messages"></div>
+    </div>
+
+    <div class="button-panel" id="buttonPanel"></div>
+
+  </div>
+
+<script>
+/* === ДАННЫЕ (СЦЕНАРИИ) === */
+
+const flows = {
+  start: {
+    botMessage: "Привет! Я KirovGPT",
+    buttons: [
+      { id: "autism", label: "Сгенерируй стримера для детей аутистов" },
+      { id: "maxon", label: "Сгенерировать объект хайпа" },
+      { id: "npc", label: "Сгенерируй песню для НПС" }
+    ]
+  },
+
+  autism: {
+    userLabel: "Сгенерируй мне стримера которого будут смотреть малолетние дети аутисты без мозга и который будет вонять и петь очень тупые песни и у него будет очень мало денег и он будет очень толстым",
+    botMessage: "Генерация.............\n.................................................................\n.................................................................\n.................................................................\n.................................................................\n\nСгенерировано! Его Twitch: https://www.twitch.tv/leavpent\n Имя: Доавид шолавин\n фамилия: шоалвин",
+    buttons: [{ id: "start", label: "Назад" }]
+  },
+
+  maxon: {
+    userLabel: "Сгенерируй мне объект хайпа для стримера ливвпент над которым он сможет глумиться на стриме",
+    botMessage: "KirovGPT запускается..................................................\n.......................................................\n..................................................\nСГЕНЕРИРОВАНO:Maxon",
+    buttons: [{ id: "start", label: "Ещё" }]
+  },
+
+  npc: {
+    userLabel: "Сгенерируй ужасную тупую тупорылую ужасную песню которую будт слушать тупые дауны с синдромом дауна тупые пворды хуесосы и НПС НЕИГРОВЫЕ ПЕРОСНАЖИ ТАКЖЕ Я ЯКОТОРЫЙ ИГРОК И КРУТОЙ А ВОКРУГ ОДНИ НПС ЛЕЙМЫ : хахахаахах хахаахаххааххах ахахахахахахах ха хххахахахаха х х хахаххаахахах ха хаххахахаах ахахаха",
+    botMessage: "Генерация................................................................................................................................................................................................................................................................................................................................................................................................................\nСГЕНЕРИРОВАНО: Leavptbty - Leavpentлюбитель школ (слушать звук облако :   https://soundcloud.com/burgerbro420/certified-school-boy)",
+    buttons: [{ id: "start", label: "Понял" }]
+  }
+};
+
+/* === ЛОГИКА === */
+
+const msgEl = document.getElementById("messages");
+const panelEl = document.getElementById("buttonPanel");
+const scrollEl = document.getElementById("chatScroll");
+
+function scrollDown(){
+  requestAnimationFrame(()=>scrollEl.scrollTop = scrollEl.scrollHeight);
+}
+
+function addMsg(type, text){
+  const el = document.createElement("div");
+  el.className = "msg " + type;
+  el.textContent = text;
+  msgEl.appendChild(el);
+  scrollDown();
+}
+
+function typeBot(text){
+  return new Promise(resolve=>{
+    const el = document.createElement("div");
+    el.className = "msg bot";
+    msgEl.appendChild(el);
+
+    let i = 0;
+    function tick(){
+      el.textContent = text.slice(0,i);
+      i++;
+      scrollDown();
+      if(i <= text.length) setTimeout(tick, 12);
+      else resolve();
+    }
+    tick();
+  });
+}
+
+function renderButtons(btns){
+  panelEl.innerHTML = "";
+  btns.forEach(b=>{
+    const el = document.createElement("button");
+    el.className = "chat-btn";
+    el.textContent = b.label;
+    el.onclick = ()=>run(b.id);
+    panelEl.appendChild(el);
+  });
+}
+
+async function run(id){
+  const f = flows[id];
+  if(!f) return;
+
+  if(f.userLabel) addMsg("user", f.userLabel);
+
+  await new Promise(r=>setTimeout(r,200));
+  await typeBot(f.botMessage);
+
+  renderButtons(f.buttons);
+}
+
+window.onload = ()=>run("start");
+</script>
+
+</body>
+</html>
